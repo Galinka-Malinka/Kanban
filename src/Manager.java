@@ -1,14 +1,14 @@
 import java.util.*;
 
 public class Manager {
-    HashMap<Integer, Task> taskHashMap = new HashMap<>();
-    HashMap<Integer, Subtask> subtaskHashMap = new HashMap<>();
-    HashMap<Integer, Epic> epicHashMap = new HashMap<>();
+    Map<Integer, Task> taskHashMap = new HashMap<>();
+    Map<Integer, Subtask> subtaskHashMap = new HashMap<>();
+    Map<Integer, Epic> epicHashMap = new HashMap<>();
 
 
-    int id = 0;
+    private int id = 0;
 
-    public ArrayList getListOfOllTasks() { // Получение списка всех задач.
+    public List getListOfOllTasks() { // Получение списка всех задач.
 
         ArrayList<Object> listOllTask = new ArrayList<>();
         listOllTask.add(taskHashMap.values());
@@ -37,22 +37,22 @@ public class Manager {
     }
 
     public Task createTask(Task task) {  //Создание задачи
-        task.id = id + 1;
-        id = task.id;
+        task.setId(id + 1);
+        id = task.getId();
         taskHashMap.put(id, task);
         return task;
     }
 
     public Subtask createSubTask(Subtask subtask) { //Создание подзадачи
-        subtask.id = id + 1;
-        id = subtask.id;
+        subtask.setId(id + 1);
+        id = subtask.getId();
         subtaskHashMap.put(id, subtask);
         return subtask;
     }
 
     public Epic createEpic(Epic epic) { //Создание эпика
-        epic.id = id + 1;
-        id = epic.id;
+        epic.setId(id + 1);
+        id = epic.getId();
         epicHashMap.put(id, epic);
         return epic;
     }
@@ -62,22 +62,22 @@ public class Manager {
     }
 
     public void updateTask(int firstId, Task task) { //Обновление задачи
-        task.id = firstId;
+        task.setId(firstId);
         taskHashMap.put(firstId, task);
     }
 
     public void updateSubtask(int firstId, Subtask subtask) { //Обновление подзадачи
-        subtask.epicId = subtaskHashMap.get(firstId).epicId;
+        subtask.setEpicId(subtaskHashMap.get(firstId).getEpicId());
 
-        subtask.id = firstId;
+        subtask.setId(firstId);
 
         subtaskHashMap.put(firstId, subtask);
-        epicHashMap.get(subtask.epicId).getSubTask(subtask);
-        epicHashMap.get(subtask.epicId).reviewStatus();
+        epicHashMap.get(subtask.getEpicId()).getSubTask(subtask);
+        epicHashMap.get(subtask.getEpicId()).reviewStatus();
     }
 
     public void updateEpic(int firstId, Epic epic) { //Обновление эпика
-        epic.id = firstId;
+        epic.setId(firstId);
         epicHashMap.put(firstId, epic);
     }
 
@@ -88,8 +88,10 @@ public class Manager {
         } else if (subtaskHashMap.containsValue(subtaskHashMap.get(id))) {
             Subtask subtask = subtaskHashMap.get(id);
 
-            epicHashMap.get(subtask.epicId).removeSubtask(subtask.id);
+            epicHashMap.get(subtask.getEpicId()).removeSubtask(subtask.getId());
             subtaskHashMap.remove(id);
+            epicHashMap.get(subtask.getEpicId()).reviewStatus();
+
         } else if (epicHashMap.containsValue(epicHashMap.get(id))) {
             epicHashMap.remove(id);
         }
@@ -97,7 +99,6 @@ public class Manager {
 
     public Object getArrayTask(int id) {//Получение списка всех подзадач определённого эпика.
         Epic epic = epicHashMap.get(id);
-        HashMap<Integer, Subtask> subtasks = epic.subtasks;
-        return subtasks;
+        return epic.subtasks;
     }
 }

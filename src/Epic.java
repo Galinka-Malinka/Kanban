@@ -1,16 +1,24 @@
 import java.util.HashMap;
 
 public class Epic extends Task {
-    int id;
+    private int id;
     HashMap<Integer, Subtask> subtasks = new HashMap<>();
 
     public Epic(String name, String description, String status) {
         super(name, description, status);
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     void getSubTask(Subtask subtask) {
-        subtasks.put(subtask.id, subtask);
-        subtask.epicId = id;
+        subtasks.put(subtask.getId(), subtask);
+        subtask.setEpicId(id);
     }
 
     void removeSubtask(int id) {
@@ -19,7 +27,8 @@ public class Epic extends Task {
 
     void reviewStatus() {
         if (subtasks.isEmpty()) {
-            status = "NEW";
+            this.setStatus("NEW");
+            return;
         }
 
         int amountStatusNew = 0;
@@ -27,33 +36,34 @@ public class Epic extends Task {
         int amountStatusDone = 0;
 
         for (Subtask title : subtasks.values()) {
-            if (title.status == "NEW") {
+            if (title.getStatus() == "NEW") {
                 amountStatusNew = amountStatusNew + 1;
-            } else if (title.status == "DONE") {
+            } else if (title.getStatus() == "DONE") {
                 amountStatusDone = amountStatusDone + 1;
             }
         }
         if (amountStatusNew == subtasks.size()) {
-            status = "NEW";
+            this.setStatus("NEW");
         } else if (amountStatusDone == subtasks.size()) {
-            status = "DONE";
+            this.setStatus("DONE");
         } else {
-            status = "IN_PROGRESS";
+            this.setStatus("IN_PROGRESS");
         }
     }
 
     @Override
     public String toString() {
-        String result = "Post{" + "name='" + name + '\'';
-
-        if (description != null) {
-            result = result + ", description.length='" + description.length() + '\'';
+        String result = "Task{" +
+                "name='" + this.getName() + '\'' +
+                ", description='" + this.getDescription() + '\'';
+        if (this.getDescription() != null) {
+            result = result + ", description.length='" + this.getDescription().length() + '\'';
         } else {
             result = result + ", description.length='null'";
         }
-
-        return result + ", status=" + status +
-                ", id=" + id + '}';
+        return result + ", status='" + this.getStatus() + '\'' +
+                ", id=" + id +
+                '}';
     }
 }
 
