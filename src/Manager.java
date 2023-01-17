@@ -1,9 +1,9 @@
 import java.util.*;
 
 public class Manager {
-    Map<Integer, Task> taskHashMap = new HashMap<>();
-    Map<Integer, Subtask> subtaskHashMap = new HashMap<>();
-    Map<Integer, Epic> epicHashMap = new HashMap<>();
+    private Map<Integer, Task> taskHashMap = new HashMap<>();
+    private Map<Integer, Subtask> subtaskHashMap = new HashMap<>();
+    private Map<Integer, Epic> epicHashMap = new HashMap<>();
 
 
     private int id = 0;
@@ -31,6 +31,14 @@ public class Manager {
         } else if (subtaskHashMap.containsValue(subtaskHashMap.get(id))) {
             newObject = subtaskHashMap.get(id);
         } else if (epicHashMap.containsValue(epicHashMap.get(id))) {
+            newObject = epicHashMap.get(id);
+        }
+        return newObject;
+    }
+
+    public Task getEpicById(int id) {  //Проверка наличия эпика по id
+        Task newObject = null;
+        if (epicHashMap.containsValue(epicHashMap.get(id))) {
             newObject = epicHashMap.get(id);
         }
         return newObject;
@@ -72,7 +80,7 @@ public class Manager {
         subtask.setId(firstId);
 
         subtaskHashMap.put(firstId, subtask);
-        epicHashMap.get(subtask.getEpicId()).getSubTask(subtask);
+        epicHashMap.get(subtask.getEpicId()).addSubtask(subtask);
         epicHashMap.get(subtask.getEpicId()).reviewStatus();
     }
 
@@ -99,6 +107,6 @@ public class Manager {
 
     public Object getArrayTask(int id) {//Получение списка всех подзадач определённого эпика.
         Epic epic = epicHashMap.get(id);
-        return epic.subtasks;
+        return epic.getSubtasks();
     }
 }

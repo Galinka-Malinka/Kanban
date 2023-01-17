@@ -78,12 +78,12 @@ public class Main {
                             System.out.println("Введите id эпика, в который будет добавлена подзадача:");
                             int epicId = scanner.nextInt();
 
-                            if (manager.getTaskById(epicId) == null) {
+                            if (manager.getEpicById(epicId) == null) {
                                 System.out.println("Эпика с данным id не существует.");
                                 break;
                             }
 
-                            manager.getSubtaskEpicId(epicId).getSubTask(subtask);
+                            manager.getSubtaskEpicId(epicId).addSubtask(subtask);
                             manager.getSubtaskEpicId(epicId).reviewStatus();
                         }
                         break;
@@ -184,9 +184,11 @@ public class Main {
                 System.out.println("Введите id эпика.");
                 int id = scanner.nextInt();
 
-                if (manager.getTaskById(id) == null) {
+                if (manager.getEpicById(id) == null) {
                     System.out.println("Эпика с данным id не существует.");
-                    break;
+                    printMenu();
+                    choice = scanner.nextInt();
+                    continue;
                 }
 
                 System.out.println(manager.getArrayTask(id));

@@ -2,7 +2,7 @@ import java.util.HashMap;
 
 public class Epic extends Task {
     private int id;
-    HashMap<Integer, Subtask> subtasks = new HashMap<>();
+    private HashMap<Integer, Subtask> subtasks = new HashMap<>();
 
     public Epic(String name, String description, String status) {
         super(name, description, status);
@@ -16,7 +16,11 @@ public class Epic extends Task {
         this.id = id;
     }
 
-    void getSubTask(Subtask subtask) {
+    public HashMap<Integer, Subtask> getSubtasks() {
+        return subtasks;
+    }
+
+    void addSubtask(Subtask subtask) {
         subtasks.put(subtask.getId(), subtask);
         subtask.setEpicId(id);
     }
