@@ -1,13 +1,15 @@
 import java.util.*;
 
-public class Manager {
+public class InMemoryTaskManager implements TaskManager {
     private Map<Integer, Task> taskHashMap = new HashMap<>();
     private Map<Integer, Subtask> subtaskHashMap = new HashMap<>();
     private Map<Integer, Epic> epicHashMap = new HashMap<>();
 
-
     private int id = 0;
 
+    HistoryManager historyManager = Managers.getDefaultHistory();//Объявление переменной, которая содержит
+                                                                 //определённую реализацию ИФ HistoryManager
+    @Override
     public List getListOfOllTasks() { // Получение списка всех задач.
 
         ArrayList<Object> listOllTask = new ArrayList<>();
@@ -18,24 +20,36 @@ public class Manager {
         return listOllTask;
     }
 
+    @Override
     public void clearTask() { //Удаление всех задач.
         taskHashMap.clear();
         subtaskHashMap.clear();
         epicHashMap.clear();
     }
 
+    @Override
     public Task getTaskById(int id) {  //Получение по идентификатору
         Task newObject = null;
         if (taskHashMap.containsValue(taskHashMap.get(id))) {
             newObject = taskHashMap.get(id);
+
+            historyManager.add(newObject);
+
         } else if (subtaskHashMap.containsValue(subtaskHashMap.get(id))) {
             newObject = subtaskHashMap.get(id);
+
+            historyManager.add(newObject);
+
         } else if (epicHashMap.containsValue(epicHashMap.get(id))) {
             newObject = epicHashMap.get(id);
+
+            historyManager.add(newObject);
+
         }
         return newObject;
     }
 
+    @Override
     public Task getEpicById(int id) {  //Проверка наличия эпика по id
         Task newObject = null;
         if (epicHashMap.containsValue(epicHashMap.get(id))) {
@@ -44,6 +58,7 @@ public class Manager {
         return newObject;
     }
 
+    @Override
     public Task createTask(Task task) {  //Создание задачи
         task.setId(id + 1);
         id = task.getId();
@@ -51,6 +66,7 @@ public class Manager {
         return task;
     }
 
+    @Override
     public Subtask createSubTask(Subtask subtask) { //Создание подзадачи
         subtask.setId(id + 1);
         id = subtask.getId();
@@ -58,6 +74,7 @@ public class Manager {
         return subtask;
     }
 
+    @Override
     public Epic createEpic(Epic epic) { //Создание эпика
         epic.setId(id + 1);
         id = epic.getId();
@@ -65,15 +82,19 @@ public class Manager {
         return epic;
     }
 
+    @Override
     public Epic getSubtaskEpicId(int id) {  // Получение эпика по id
+
         return epicHashMap.get(id);
     }
 
+    @Override
     public void updateTask(int firstId, Task task) { //Обновление задачи
         task.setId(firstId);
         taskHashMap.put(firstId, task);
     }
 
+    @Override
     public void updateSubtask(int firstId, Subtask subtask) { //Обновление подзадачи
         subtask.setEpicId(subtaskHashMap.get(firstId).getEpicId());
 
@@ -84,11 +105,13 @@ public class Manager {
         epicHashMap.get(subtask.getEpicId()).reviewStatus();
     }
 
+    @Override
     public void updateEpic(int firstId, Epic epic) { //Обновление эпика
         epic.setId(firstId);
         epicHashMap.put(firstId, epic);
     }
 
+    @Override
     public void removeById(int id) {// Удаление по идентификатору.
 
         if (taskHashMap.containsValue(taskHashMap.get(id))) {
@@ -105,8 +128,17 @@ public class Manager {
         }
     }
 
-    public Object getArrayTask(int id) {//Получение списка всех подзадач определённого эпика.
+    @Override
+    public Object getArrayTask(int id) {  // Получение списка всех подзадач определённого эпика.
         Epic epic = epicHashMap.get(id);
+
+        historyManager.add(epic);
+
         return epic.getSubtasks();
+    }
+
+    @Override
+    public List<Task> getHistory() {  // Получение истории просмотренных задач.
+        return historyManager.getHistory();
     }
 }

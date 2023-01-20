@@ -8,7 +8,9 @@ public class Main {
         Task task;
         Epic epic;
         Subtask subtask;
-        Manager manager = new Manager();
+
+        TaskManager manager = Managers.getDefault();  //Объявление переменной, которая содержит
+                                                      //определённую реализацию ИФ TaskManager
 
         printMenu();
         int choice = scanner.nextInt();
@@ -45,16 +47,16 @@ public class Main {
 
                         printMenuStatusTask();  // Выбор статуса задачи
 
-                        String status = "";
+                        Status status;
 
                         int input = scanner.nextInt();
                         while (true) {
                             if (input == 1) {
-                                status = "NEW";
+                                status = Status.NEW;
                             } else if (input == 2) {
-                                status = "IN_PROGRESS";
+                                status = Status.IN_PROGRESS;
                             } else if (input == 3) {
-                                status = "DONE";
+                                status = Status.DONE;
                             } else {
                                 System.out.println("Такой команды нет. Выберите действие от 1 до 3.");
                                 printMenuStatusTask();
@@ -134,17 +136,17 @@ public class Main {
 
                         printMenuStatusTask(); // Выбор статуса
 
-                        String status = "";
+                        Status status;
 
                         int input = scanner.nextInt();
                         while (true) {
 
                             if (input == 1) {
-                                status = "NEW";
+                                status = Status.NEW;
                             } else if (input == 2) {
-                                status = "IN_PROGRESS";
+                                status = Status.IN_PROGRESS;
                             } else if (input == 3) {
-                                status = "DONE";
+                                status = Status.DONE;
                             } else {
                                 System.out.println("Такой команды нет. Выберите действие от 1 до 3.");
                                 printMenuStatusTask();
@@ -192,6 +194,9 @@ public class Main {
                 }
 
                 System.out.println(manager.getArrayTask(id));
+            } else if (choice == 8) {  //  Получение истории просмотренных задач.
+
+                System.out.println(manager.getHistory());
 
             } else {
                 System.out.println("Такой команды нет. Выберите действие от 0 до 7");
@@ -213,6 +218,7 @@ public class Main {
                 "5 - Получение списка всех задач.\n" +
                 "6 - Удаление всех задач.\n" +
                 "7 - Получение списка всех подзадач определённого эпика.\n" +
+                "8 - Получение истории просмотренных задач.\n" +
                 "0 - Выход из программыю");
     }
 
@@ -231,5 +237,11 @@ public class Main {
                 "2 - Эпик\n" +
                 "3 - Подзадача");
 
+    }
+
+    public enum Status {
+        NEW,
+        IN_PROGRESS,
+        DONE
     }
 }

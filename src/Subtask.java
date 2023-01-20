@@ -3,7 +3,8 @@ public class Subtask extends Task {
     private int id;
     private int epicId;
 
-    public Subtask(String name, String description, String status) {
+    public Subtask(String name, String description, Main.Status status) {
+
         super(name, description, status);
     }
 

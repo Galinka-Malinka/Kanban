@@ -4,7 +4,7 @@ public class Epic extends Task {
     private int id;
     private HashMap<Integer, Subtask> subtasks = new HashMap<>();
 
-    public Epic(String name, String description, String status) {
+    public Epic(String name, String description, Main.Status status) {
         super(name, description, status);
     }
 
@@ -31,7 +31,7 @@ public class Epic extends Task {
 
     void reviewStatus() {
         if (subtasks.isEmpty()) {
-            this.setStatus("NEW");
+            this.setStatus(Main.Status.NEW);
             return;
         }
 
@@ -40,18 +40,18 @@ public class Epic extends Task {
         int amountStatusDone = 0;
 
         for (Subtask title : subtasks.values()) {
-            if (title.getStatus() == "NEW") {
+            if (title.getStatus() == Main.Status.NEW) {
                 amountStatusNew = amountStatusNew + 1;
-            } else if (title.getStatus() == "DONE") {
+            } else if (title.getStatus() == Main.Status.DONE) {
                 amountStatusDone = amountStatusDone + 1;
             }
         }
         if (amountStatusNew == subtasks.size()) {
-            this.setStatus("NEW");
+            this.setStatus(Main.Status.NEW);
         } else if (amountStatusDone == subtasks.size()) {
-            this.setStatus("DONE");
+            this.setStatus(Main.Status.DONE);
         } else {
-            this.setStatus("IN_PROGRESS");
+            this.setStatus(Main.Status.IN_PROGRESS);
         }
     }
 

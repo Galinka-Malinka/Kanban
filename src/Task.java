@@ -2,11 +2,11 @@ public class Task {
 
     private String name;
     private String description;
-    private String status;
+    private Main.Status status;
     private int id;
 
 
-    public Task(String name, String description, String status) {
+    public Task(String name, String description, Main.Status status) {
         this.name = name;
         this.description = description;
         this.status = status;
@@ -36,11 +36,11 @@ public class Task {
         this.description = description;
     }
 
-    public String getStatus() {
+    public Main.Status getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Main.Status status) {
         this.status = status;
     }
 
