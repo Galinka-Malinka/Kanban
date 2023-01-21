@@ -1,3 +1,10 @@
+import managers.Managers;
+import managers.TaskManager;
+import tasks.Epic;
+import tasks.Status;
+import tasks.Subtask;
+import tasks.Task;
+
 import java.util.Scanner;
 
 public class Main {
@@ -10,7 +17,7 @@ public class Main {
         Subtask subtask;
 
         TaskManager manager = Managers.getDefault();  //Объявление переменной, которая содержит
-                                                      //определённую реализацию ИФ TaskManager
+                                                      //определённую реализацию ИФ managers.TaskManager
 
         printMenu();
         int choice = scanner.nextInt();
@@ -239,9 +246,5 @@ public class Main {
 
     }
 
-    public enum Status {
-        NEW,
-        IN_PROGRESS,
-        DONE
-    }
+
 }

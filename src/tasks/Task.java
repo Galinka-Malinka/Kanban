@@ -1,12 +1,14 @@
+package tasks;
+
 public class Task {
 
     private String name;
     private String description;
-    private Main.Status status;
+    private Status status;
     private int id;
 
 
-    public Task(String name, String description, Main.Status status) {
+    public Task(String name, String description, Status status) {
         this.name = name;
         this.description = description;
         this.status = status;
@@ -36,17 +38,17 @@ public class Task {
         this.description = description;
     }
 
-    public Main.Status getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(Main.Status status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
-    @Override
+
     public String toString() {
-        String result = "Task{" +
+        String result = "Tasks.Task{" +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'';
         if (description != null) {
