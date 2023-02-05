@@ -14,7 +14,7 @@ public class InMemoryTaskManager implements TaskManager {
     private int id = 0;
 
     HistoryManager historyManager = Managers.getDefaultHistory();//Объявление переменной, которая содержит
-                                                                //определённую реализацию ИФ managers.HistoryManager
+    //определённую реализацию ИФ managers.HistoryManager
     @Override
     public List<Collection<? extends Task>> getListOfOllTasks() { // Получение списка всех задач.
 
@@ -132,6 +132,7 @@ public class InMemoryTaskManager implements TaskManager {
         } else if (epicHashMap.containsValue(epicHashMap.get(id))) {
             epicHashMap.remove(id);
         }
+        historyManager.remove(id);
     }
 
     @Override
