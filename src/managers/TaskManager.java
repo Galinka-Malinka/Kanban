@@ -4,11 +4,13 @@ import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public interface TaskManager {
 
-    List getListOfOllTasks();  // Получение списка всех задач.
+    List<Collection<? extends Task>> getListOfOllTasks();  // Получение списка всех задач.
 
     void clearTask();  //Удаление всех задач.
 
@@ -34,6 +36,6 @@ public interface TaskManager {
 
     void updateEpic(int firstId, Epic epic);  //Обновление эпика
 
-    Object getArrayTask(int id);  //Получение списка всех подзадач определённого эпика.
+    Map<Integer, Subtask> getSubtasksByEpicId(int id);  //Получение списка всех подзадач определённого эпика.
 
 }

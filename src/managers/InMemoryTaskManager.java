@@ -18,12 +18,12 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Collection<? extends Task>> getListOfOllTasks() { // Получение списка всех задач.
 
-        List<Collection<? extends Task>> listOllTask = new ArrayList<>(3);
-        listOllTask.add(taskHashMap.values());
-        listOllTask.add(subtaskHashMap.values());
-        listOllTask.add(epicHashMap.values());
+        List<Collection<? extends Task>> listAllTask = new ArrayList<>(3);
+        listAllTask.add(taskHashMap.values());
+        listAllTask.add(subtaskHashMap.values());
+        listAllTask.add(epicHashMap.values());
 
-        return listOllTask;
+        return listAllTask;
     }
 
     @Override
@@ -136,7 +136,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Map<Integer, Subtask> getArrayTask(int id) {  // Получение списка всех подзадач определённого эпика.
+    public Map<Integer, Subtask> getSubtasksByEpicId(int id) {  // Получение списка всех подзадач определённого эпика.
         Epic epic = epicHashMap.get(id);
 
         historyManager.add(epic);

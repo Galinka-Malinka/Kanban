@@ -200,7 +200,7 @@ public class Main {
                     continue;
                 }
 
-                System.out.println(manager.getArrayTask(id));
+                System.out.println(manager.getSubtasksByEpicId(id));
             } else if (choice == 8) {  //  Получение истории просмотренных задач.
 
                 System.out.println(manager.getHistory());
