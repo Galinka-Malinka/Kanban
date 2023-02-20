@@ -1,12 +1,10 @@
 package tasks;
 
 public class Task {
-
     private String name;
     private String description;
     private Status status;
     private int id;
-
 
     public Task(String name, String description, Status status) {
         this.name = name;
@@ -46,7 +44,7 @@ public class Task {
         this.status = status;
     }
 
-
+   @Override
     public String toString() {
         String result = "Tasks.Task{" +
                 "name='" + name + '\'' +

@@ -8,7 +8,6 @@ public class Subtask extends Task {
     private int epicId;
 
     public Subtask(String name, String description, Status status) {
-
         super(name, description, status);
     }
 
@@ -18,6 +17,7 @@ public class Subtask extends Task {
 
     public void setId(int id) {
         this.id = id;
+        super.setId(id);
     }
 
     public int getEpicId() {

@@ -66,4 +66,12 @@ public class InMemoryHistoryManager implements HistoryManager {
             lastNode = prevNode;
         }
     }
+
+    @Override
+    public void removeHistory(){
+        for (Node node : map.values()) {
+            removeNode(node);
+        }
+        map.clear();
+    }
 }

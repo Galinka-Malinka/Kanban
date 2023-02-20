@@ -17,6 +17,7 @@ public class Epic extends Task {
 
     public void setId(int id) {
         this.id = id;
+        super.setId(id);
     }
 
     public Map<Integer, Subtask> getSubtasks() {

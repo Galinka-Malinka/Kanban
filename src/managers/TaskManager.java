@@ -10,7 +10,7 @@ import java.util.Map;
 
 public interface TaskManager {
 
-    List<Collection<? extends Task>> getListOfOllTasks();  // Получение списка всех задач.
+    List<Collection<? extends Task>> getListOfAllTasks();  // Получение списка всех задач.
 
     void clearTask();  //Удаление всех задач.
 
@@ -22,7 +22,7 @@ public interface TaskManager {
 
     Task createTask(Task task);  //Создание задачи
 
-    Subtask createSubTask(Subtask subtask);  //Создание подзадачи
+    Subtask createSubTask(Subtask subtask, int epicId);  //Создание подзадачи
 
     Epic createEpic(Epic epic);  //Создание эпика
 

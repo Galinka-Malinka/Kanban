@@ -13,10 +13,30 @@ public class InMemoryTaskManager implements TaskManager {
 
     private int id = 0;
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void addInTaskHashMap(Integer id, Task task) {
+        this.taskHashMap.put(id, task);
+    }
+
+    public void addInSubtaskHashMap(Integer id, Subtask subtask) {
+        this.subtaskHashMap.put(id, subtask);
+    }
+
+    public void addInEpicHashMap(Integer id, Epic epic) {
+        this.epicHashMap.put(id, epic);
+    }
+
     HistoryManager historyManager = Managers.getDefaultHistory();//Объявление переменной, которая содержит
-    //определённую реализацию ИФ managers.HistoryManager
+                                                                 //определённую реализацию ИФ managers.HistoryManager
     @Override
-    public List<Collection<? extends Task>> getListOfOllTasks() { // Получение списка всех задач.
+    public List<Collection<? extends Task>> getListOfAllTasks() { // Получение списка всех задач.
 
         List<Collection<? extends Task>> listAllTask = new ArrayList<>(3);
         listAllTask.add(taskHashMap.values());
@@ -31,6 +51,8 @@ public class InMemoryTaskManager implements TaskManager {
         taskHashMap.clear();
         subtaskHashMap.clear();
         epicHashMap.clear();
+        id = 0;
+        historyManager.removeHistory();
     }
 
     @Override
@@ -50,7 +72,6 @@ public class InMemoryTaskManager implements TaskManager {
             newObject = epicHashMap.get(id);
 
             historyManager.add(newObject);
-
         }
         return newObject;
     }
@@ -73,10 +94,12 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Subtask createSubTask(Subtask subtask) { //Создание подзадачи
+    public Subtask createSubTask(Subtask subtask, int epicId) { //Создание подзадачи
         subtask.setId(id + 1);
+        subtask.setEpicId(epicId);
         id = subtask.getId();
         subtaskHashMap.put(id, subtask);
+
         return subtask;
     }
 
@@ -130,9 +153,21 @@ public class InMemoryTaskManager implements TaskManager {
             epicHashMap.get(subtask.getEpicId()).reviewStatus();
 
         } else if (epicHashMap.containsValue(epicHashMap.get(id))) {
+            Map<Integer, Subtask> subtasksFromEpic = epicHashMap.get(id).getSubtasks();
+            for (Subtask subtask : subtasksFromEpic.values()){
+                subtaskHashMap.remove(subtask.getId());
+                historyManager.remove(subtask.getId());
+            }
             epicHashMap.remove(id);
         }
-        historyManager.remove(id);
+
+       if(!historyManager.getHistory().isEmpty()) {
+           historyManager.remove(id);
+       }
+
+        if(taskHashMap.isEmpty() || subtaskHashMap.isEmpty() || epicHashMap.isEmpty()) {
+            setId(0);
+        }
     }
 
     @Override
