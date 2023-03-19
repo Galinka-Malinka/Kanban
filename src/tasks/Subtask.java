@@ -1,14 +1,14 @@
 package tasks;
 
-import tasks.Task;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class Subtask extends Task {
-
-    private int id;
     private int epicId;
 
-    public Subtask(String name, String description, Status status) {
-        super(name, description, status);
+    public Subtask(String name, String description, Status status, LocalDateTime startTime, Duration duration) {
+        super(name, description, status, startTime, duration);
     }
 
     public int getId() {
@@ -28,5 +28,17 @@ public class Subtask extends Task {
         this.epicId = epicId;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Subtask subtask = (Subtask) o;
+        return id == subtask.id && epicId == subtask.epicId;
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), id, epicId);
+    }
 }

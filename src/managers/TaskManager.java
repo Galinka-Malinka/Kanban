@@ -10,13 +10,14 @@ import java.util.Map;
 
 public interface TaskManager {
 
-    List<Collection<? extends Task>> getListOfAllTasks();  // Получение списка всех задач.
+    List<Collection<? extends Task>> getListOfAllTasks();  // Получение списка всех задач
+    List<Task> getPrioritizedTasks();  //Получение списка задач в порядке приоритета
 
-    void clearTask();  //Удаление всех задач.
+    void clearTask();  //Удаление всех задач
 
     Task getTaskById(int id);  //Получение по идентификатору
 
-    void removeById(int id);  // Удаление по идентификатору.
+    void removeById(int id);  // Удаление по идентификатору
 
     List<Task> getHistory();  // История просмотров последних 10 задач
 
@@ -25,6 +26,8 @@ public interface TaskManager {
     Subtask createSubTask(Subtask subtask, int epicId);  //Создание подзадачи
 
     Epic createEpic(Epic epic);  //Создание эпика
+
+    Task findingIntersectionsOfTasks(Task newTask);  //Проверка на пересечение
 
     Epic getSubtaskEpicId(int id);  // Получение эпика по id
 
