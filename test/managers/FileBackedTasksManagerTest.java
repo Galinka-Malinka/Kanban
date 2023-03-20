@@ -156,7 +156,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         assertNotNull(manager.getHistory(), "История просмотренных задач пуста");
 
         manager.save();
-        FileBackedTasksManager managerLoad = loadFromFile(manager.file);
+        FileBackedTasksManager managerLoad = loadFromFile(file);
         Epic epicLoad = (Epic) managerLoad.getEpicById(epicTest.getId());
 
         assertNotNull(managerLoad.getEpicById(epicTest.getId()), "Эпик, переданный для сохранения отсутствует");
@@ -173,7 +173,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
 
         manager.clearTask();
         manager.save();
-        FileBackedTasksManager managerLoadEmptyFile = loadFromFile(manager.file);
+        FileBackedTasksManager managerLoadEmptyFile = loadFromFile(file);
         assertTrue(managerLoadEmptyFile.getHistory().isEmpty(), "Неверная загрузка файла с чистой историей");
     }
 

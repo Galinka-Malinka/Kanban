@@ -13,7 +13,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-abstract class TaskManagerTest<T extends InMemoryTaskManager> {
+abstract class TaskManagerTest {
     InMemoryTaskManager manager;
     HistoryManager historyManager;
     Task task;
