@@ -7,12 +7,12 @@ import tasks.Task;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
-    private Map<Integer, Task> taskHashMap = new HashMap<>();
-    private Map<Integer, Subtask> subtaskHashMap = new HashMap<>();
-    private Map<Integer, Epic> epicHashMap = new HashMap<>();
+    final Map<Integer, Task> taskHashMap = new HashMap<>();
+    final Map<Integer, Subtask> subtaskHashMap = new HashMap<>();
+    final Map<Integer, Epic> epicHashMap = new HashMap<>();
 
-    private Set<Task> resortedTasks = new java.util.TreeSet<>(Comparator.comparing(Task::getStartTime));
-    private Set<Task> tasksWithNullStartTime = new TreeSet<>(Comparator.comparing(Task::getId));
+    final Set<Task> resortedTasks = new java.util.TreeSet<>(Comparator.comparing(Task::getStartTime));
+    final Set<Task> tasksWithNullStartTime = new TreeSet<>(Comparator.comparing(Task::getId));
     private int id = 0;
 
     public int getId() {
@@ -73,9 +73,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task findingIntersectionsOfTasks(Task newTask) {  //Поиск пересечений
-        if(!getPrioritizedTasks().isEmpty()) {
-            for (Task task: getPrioritizedTasks()) {
-                if (task.getStartTime() != null){
+        if (!getPrioritizedTasks().isEmpty()) {
+            for (Task task : getPrioritizedTasks()) {
+                if (task.getStartTime() != null) {
                     if ((newTask.getStartTime().isAfter(task.getStartTime())
                             && newTask.getStartTime().isBefore(task.getEndTime()))
                             || (newTask.getStartTime().isBefore(task.getStartTime())
@@ -83,7 +83,7 @@ public class InMemoryTaskManager implements TaskManager {
                         return task;
                     }
                 } else {
-                    if(task.getId() == newTask.getId()) {
+                    if (task.getId() == newTask.getId()) {
                         return task;
                     }
                 }
@@ -193,7 +193,7 @@ public class InMemoryTaskManager implements TaskManager {
             }
         } else {
             this.getPrioritizedTasks().remove(taskHashMap.get(firstId));
-            if(task.getStartTime() == null) {
+            if (task.getStartTime() == null) {
                 this.tasksWithNullStartTime.add(task);
             } else {
                 this.resortedTasks.add(task);

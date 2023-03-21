@@ -72,7 +72,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                     .append(task.getDescription()).append(",").append(" ").append(",")
                     .append(task.getStartTime()).append(",").append(task.getDuration()).append(",");
         }
-        System.out.println(designerTaskDescription.toString());
         return designerTaskDescription.toString();
     }
 
@@ -98,25 +97,23 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
             String[] allTasksFromFile = content.split("\n");
             for (String task : allTasksFromFile) {
-                if (task.equals(allTasksFromFile[0])) {
-                    continue;
-                } else if (task.isBlank()) {
-                    continue;
-                } else if (task.equals(allTasksFromFile[allTasksFromFile.length - 1])) {
-                    HistoryManager historyManager = Managers.getDefaultHistory();
+                if (!task.equals(allTasksFromFile[0]) && !task.isBlank()) {
+                    if (task.equals(allTasksFromFile[allTasksFromFile.length - 1])) {
+                        HistoryManager historyManager = Managers.getDefaultHistory();
 
-                    List<Integer> listIdTaskOfHistory = historyFromString(task);
-                    for (int taskId : listIdTaskOfHistory) {
-                        historyManager.add(fileBackedTasksManager.getTaskById(taskId));
-                    }
-                } else {
-                    Task element = fromString(task);
-                    if (element instanceof Epic) {
-                        fileBackedTasksManager.createEpicFromFile((Epic) element);
-                    } else if (element instanceof Subtask) {
-                        fileBackedTasksManager.createSubtaskFromFile((Subtask) element);
+                        List<Integer> listIdTaskOfHistory = historyFromString(task);
+                        for (int taskId : listIdTaskOfHistory) {
+                            historyManager.add(fileBackedTasksManager.getTaskById(taskId));
+                        }
                     } else {
-                        fileBackedTasksManager.createTaskFromFile(element);
+                        Task element = fromString(task);
+                        if (element instanceof Epic) {
+                            fileBackedTasksManager.createEpicFromFile((Epic) element);
+                        } else if (element instanceof Subtask) {
+                            fileBackedTasksManager.createSubtaskFromFile((Subtask) element);
+                        } else {
+                            fileBackedTasksManager.createTaskFromFile(element);
+                        }
                     }
                 }
             }

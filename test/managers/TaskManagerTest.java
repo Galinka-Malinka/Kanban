@@ -67,7 +67,7 @@ abstract class TaskManagerTest {
         Task updatedTask = manager.getTaskById(taskTest.getId());
 
         assertNotNull(updatedTask, "Обновлённая задача не найдена");
-        assertNotNull(updatedTask.getId(), "Неверный (нулевой) ID обновлённой задачи");
+        assertNotEquals(0, updatedTask.getId(), "Неверный (нулевой) ID обновлённой задачи");
         assertNotEquals(taskTest, updatedTask, "Задача не обновилась");
         assertEquals(updatedTask.getName(), taskForUpdate.getName(), "Имя задачи не обновилось");
         assertEquals(updatedTask.getDescription(), taskForUpdate.getDescription(),
@@ -88,7 +88,7 @@ abstract class TaskManagerTest {
         Subtask updatedSubtask = (Subtask) manager.getTaskById(subtaskTest.getId());
 
         assertNotNull(updatedSubtask, "Обновлённая подзадача не найдена");
-        assertNotNull(updatedSubtask.getId(), "Неверный (нулевой) ID обновлённой подзадачи");
+        assertNotEquals(0, updatedSubtask.getId(), "Неверный (нулевой) ID обновлённой подзадачи");
         assertNotEquals(subtaskTest, updatedSubtask, "Подзадача не обновилась");
         assertEquals(updatedSubtask.getName(), subtaskForUpdate.getName(), "Имя подзадачи не обновилось");
         assertEquals(updatedSubtask.getDescription(), subtaskForUpdate.getDescription(),
@@ -108,7 +108,7 @@ abstract class TaskManagerTest {
         Epic updatedEpic = (Epic) manager.getEpicById(epicTest.getId());
 
         assertNotNull(updatedEpic, "Обновлённый эпик не найден");
-        assertNotNull(updatedEpic.getId(), "Неверный (нулевой) ID обновлённого эпика");
+        assertNotEquals(0, updatedEpic.getId(), "Неверный (нулевой) ID обновлённого эпика");
         assertNotEquals(epicTest, updatedEpic, "Эпик не обновился");
         assertEquals(updatedEpic.getName(), epicForUpdate.getName(), "Имя эпика не обновилось");
         assertEquals(updatedEpic.getDescription(), epicForUpdate.getDescription(),
@@ -123,7 +123,7 @@ abstract class TaskManagerTest {
         int taskId = taskTest.getId();
         Task desiredTask = manager.getTaskById(taskId);
 
-        assertNotNull(taskId, "Неверный (нулевой) ID задачи");
+        assertNotEquals(0, taskId, "Неверный (нулевой) ID задачи");
         assertNotNull(desiredTask, "Задача не найдена");
         assertEquals(taskTest, desiredTask, "Найденная задача не соответствует искомой");
 
@@ -131,7 +131,7 @@ abstract class TaskManagerTest {
         int epicId = epicTest.getId();
         Epic desiredEpic = (Epic) manager.getTaskById(epicId);
 
-        assertNotNull(epicId, "Неверный (нулевой) ID эпика");
+        assertNotEquals(0, epicId, "Неверный (нулевой) ID эпика");
         assertNotNull(desiredEpic, "Эпик не найден");
         assertEquals(epicTest, desiredEpic, "Найденный эпик не соответствует искомому");
 
@@ -139,7 +139,7 @@ abstract class TaskManagerTest {
         int subtaskId = subtaskTest.getId();
         Subtask desiredSubtask = (Subtask) manager.getTaskById(subtaskId);
 
-        assertNotNull(subtaskId, "Неверный (нулевой) ID подзадачи");
+        assertNotEquals(0, subtaskId, "Неверный (нулевой) ID подзадачи");
         assertNotNull(desiredSubtask, "Подзадача не найдена");
         assertEquals(subtaskTest, desiredSubtask, "Найденная подзадача не соответствует искомой");
     }
@@ -250,7 +250,7 @@ abstract class TaskManagerTest {
         int epicId = epicTest.getId();
         Epic desiredEpic = (Epic) manager.getEpicById(epicId);
 
-        assertNotNull(epicId, "Неверный (нулевой) ID эпика");
+        assertNotEquals(0, epicId, "Неверный (нулевой) ID эпика");
         assertNotNull(desiredEpic, "По данному ID необходимый эпик не обнаружен");
         assertEquals(epicTest, desiredEpic, "Найденный эпик не соответствует искомому");
     }
@@ -260,7 +260,7 @@ abstract class TaskManagerTest {
         Subtask subtaskTest = manager.createSubTask(subtask, epicTest.getId());
         Epic epicSubtasks = manager.getSubtaskEpicId(subtaskTest.getEpicId());
 
-        assertNotNull(subtaskTest.getEpicId(), "Неверный (нулевой) ID эпика");
+        assertNotEquals(0, subtaskTest.getEpicId(), "Неверный (нулевой) ID эпика");
         assertNotNull(epicSubtasks, "По данным подзадачи эпик отсутствует");
         assertEquals(epicTest, epicSubtasks, "Из данных подзадачи получен не верный эпик");
     }
@@ -277,7 +277,7 @@ abstract class TaskManagerTest {
         Subtask subtask1FromList = listSubtasks.get(subtaskTest1.getId());
         Subtask subtask2FromList = listSubtasks.get(subtaskTest2.getId());
 
-        assertNotNull(subtaskTest1.getEpicId(), "Неверный (нулевой) ID эпика");
+        assertNotEquals(0, subtaskTest1.getEpicId(), "Неверный (нулевой) ID эпика");
         assertNotNull(listSubtasks, "Список подзадач эпика пуст");
         assertEquals(subtaskTest1, subtask1FromList, "Подзадача отсутствует в эпике");
         assertEquals(subtaskTest2, subtask2FromList, "Подзадача отсутствует в эпике");
@@ -287,7 +287,7 @@ abstract class TaskManagerTest {
         Task taskTest = manager.createTask(task);
 
         assertNotNull(taskTest, "Задача не найдена");
-        assertNotNull(taskTest.getId(), "Неверный (нулевой) ID задачи");
+        assertNotEquals(0, taskTest.getId(), "Неверный (нулевой) ID задачи");
         manager.removeById(taskTest.getId());
         assertNull(manager.getTaskById(taskTest.getId()), "Задача не была удалена");
 
@@ -295,12 +295,12 @@ abstract class TaskManagerTest {
         Subtask subtaskTest = manager.createSubTask(subtask, epicTest.getId());
 
         assertNotNull(subtaskTest, "Подзадача не найдена");
-        assertNotNull(subtaskTest.getId(), "Неверный (нулевой) ID подзадачи");
+        assertNotEquals(0, subtaskTest.getId(), "Неверный (нулевой) ID подзадачи");
         manager.removeById(subtaskTest.getId());
         assertNull(manager.getTaskById(subtaskTest.getId()), "Подзадача не была удалена");
 
         assertNotNull(epicTest, "Эпик не найдена");
-        assertNotNull(epicTest.getId(), "Неверный (нулевой) ID эпика");
+        assertNotEquals(0, epicTest.getId(), "Неверный (нулевой) ID эпика");
         manager.removeById(epicTest.getId());
         assertNull(manager.getTaskById(epicTest.getId()), "Эпик не был удален");
     }
@@ -311,9 +311,9 @@ abstract class TaskManagerTest {
         Subtask subtaskTest = manager.createSubTask(subtask, epicTest.getId());
 
         assertNotNull(manager.getListOfAllTasks(), "Созданные задачи отсутствуют");
-        assertNotNull(taskTest.getId(), "Неверный (нулевой) ID задачи");
-        assertNotNull(subtaskTest.getId(), "Неверный (нулевой) ID подзадачи");
-        assertNotNull(epicTest.getId(), "Неверный (нулевой) ID эпика");
+        assertNotEquals(0, taskTest.getId(), "Неверный (нулевой) ID задачи");
+        assertNotEquals(0, subtaskTest.getId(), "Неверный (нулевой) ID подзадачи");
+        assertNotEquals(0, epicTest.getId(), "Неверный (нулевой) ID эпика");
 
         manager.clearTask();
 
