@@ -19,7 +19,7 @@ public interface TaskManager {
 
     void removeById(int id);  // Удаление по идентификатору
 
-    List<Task> getHistory();  // История просмотров последних 10 задач
+    List<Task> getHistory();  // История просмотров задач
 
     Task createTask(Task task);  //Создание задачи
 

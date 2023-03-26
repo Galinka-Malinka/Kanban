@@ -18,6 +18,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     public FileBackedTasksManager(File file) {
         super();
         this.file = file;
+
     }
 
     public static void main(String[] args) {
@@ -88,6 +89,10 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
             return listId.toString();
         }
+    }
+
+    public FileBackedTasksManager getLoadFromFile(File file) {
+        return loadFromFile(file);
     }
 
     static FileBackedTasksManager loadFromFile(File file) {  // Восстановление данных из файла
