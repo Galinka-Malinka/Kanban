@@ -36,8 +36,6 @@ public class HttpTaskServer {
         File file = new File(fileName);
         FileBackedTasksManager manager = Managers.getFileBacked(file);  // Передали реализацию FileBackedTasksManager
 
-
-
         HttpServer httpServer = HttpServer.create();
         httpServer.bind(new InetSocketAddress(PORT), 0);
         httpServer.createContext("/tasks/task", new TasksHandler(manager));
@@ -67,14 +65,16 @@ public class HttpTaskServer {
         }
 
         public static Optional<Integer> getId(HttpExchange exchange) { // Получение id из запроса
-            System.out.println( "Путь " + exchange.getRequestURI().getPath());
-            System.out.println("длина пути " +exchange.getRequestURI().getPath().length());
+
             String[] pathParts = exchange.getRequestURI().getPath().split("/");
-            System.out.println("длина массива" +pathParts.length);
-            System.out.println("id = " + pathParts[2] + " or " + pathParts[3]);
-            try {
-                return Optional.of(Integer.parseInt(pathParts[3]));
-            } catch (NumberFormatException exception) {
+
+            if (pathParts.length > 3) {
+                try {
+                    return Optional.of(Integer.parseInt(pathParts[3]));
+                } catch (NumberFormatException exception) {
+                    return Optional.empty();
+                }
+            } else {
                 return Optional.empty();
             }
         }
@@ -157,8 +157,15 @@ public class HttpTaskServer {
                     Subtask subtask = gson.fromJson(reader, Subtask.class);
 
                     Optional<Integer> id = HttpHandlerUtils.getId(httpExchange);
+
                     if (id.isEmpty()) {
-                        manager.createSubTask(subtask, subtask.getEpicId());
+
+                        String[] pathParts = httpExchange.getRequestURI().getPath().split("/");
+
+                        int epicId = Integer.parseInt(pathParts[4]);
+                        System.out.println(subtask);
+                        manager.createSubTask(subtask, epicId);
+
                         HttpHandlerUtils.writeResponse(httpExchange, "Подзадача успешно создана", 200);
                     } else {
                         manager.updateSubtask(id.get(), subtask);

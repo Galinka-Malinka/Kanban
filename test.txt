@@ -1,5 +1,4 @@
 id,type,name,status,description,epic,startTime,duration
-1,EPIC,epic1,NEW,Description for epic2, ,2023-12-15T08:35,PT30M,
-2,EPIC,epic1,NEW,Description for epic2, ,2023-12-15T08:35,PT30M,
+1,TASK,updateTask1,NEW,Description for updateTask1, ,2023-12-11T08:35,PT30M,
 
 1
