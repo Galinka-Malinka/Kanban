@@ -73,6 +73,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task findingIntersectionsOfTasks(Task newTask) {  //Поиск пересечений
+       if (newTask.getStartTime() == null) {
+           return newTask;
+       }
         if (!getPrioritizedTasks().isEmpty()) {
             for (Task task : getPrioritizedTasks()) {
                 if (task.getStartTime() != null) {
@@ -126,8 +129,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task getEpicById(int id) {  //Проверка наличия эпика по id
-        Task newObject = null;
+    public Epic getEpicById(int id) {  //Проверка наличия эпика по id
+        Epic newObject = null;
         if (epicHashMap.containsValue(epicHashMap.get(id))) {
             newObject = epicHashMap.get(id);
         }

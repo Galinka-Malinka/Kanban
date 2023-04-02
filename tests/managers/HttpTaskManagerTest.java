@@ -10,31 +10,52 @@ import tasks.Status;
 import tasks.Subtask;
 import tasks.Task;
 
-import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-import static managers.FileBackedTasksManager.loadFromFile;
-
-class FileBackedTasksManagerTest extends TaskManagerTest {
+public class HttpTaskManagerTest extends TaskManagerTest {
     HistoryManager historyManager;
-    File file = new File("test.txt");
-    FileBackedTasksManager manager = file.exists() ? loadFromFile(file) : new FileBackedTasksManager(file);
+    URL url;
+
+    {
+        try {
+            url = new URL("http://localhost:8078");
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    String apiToken = "Отсутствует";
+    KVServer kvServer;
+    HttpTaskManager manager;
+
 
     @BeforeEach
-    void create() {
+    void create() throws IOException {
+        kvServer = new KVServer();
+        kvServer.start();
+        try {
+            manager = (HttpTaskManager) Managers.getDefault(url, apiToken);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
         super.create(manager);
     }
 
     @AfterEach
     void clear() {
         super.clear();
+        kvServer.stop();
     }
 
     @AfterEach
     void clearFile() {
         manager.clearTask();
     }
+
 
     @Override
     @Test
@@ -138,8 +159,16 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         super.shouldClearAllTask();
     }
 
+    @Override
     @Test
-    void shouldSave() {  //  Проверка сохранения и загрузки файла
+    void shouldGetHistory() {  // Проверка получения истории просмотренных задач
+        super.historyManager = historyManager;
+        super.shouldGetHistory();
+    }
+
+
+    @Test
+    void shouldSave() throws MalformedURLException {  //  Проверка сохранения и загрузки данных из сервера
         task = new Task("Test Task", "Test Task description", Status.NEW,
                 LocalDateTime.now(), Duration.ofMinutes(30));
         epic = new Epic("Test addNewEpic", "Test addNewEpic description", Status.NEW,
@@ -155,8 +184,9 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
         assertNotNull(epicTest.getSubtasks(), "Эпик не содержит подзадачи");
         assertNotNull(manager.getHistory(), "История просмотренных задач пуста");
 
-        manager.save();
-        FileBackedTasksManager managerLoad = loadFromFile(manager.file);
+        manager.saveManagerData();
+
+        HttpTaskManager managerLoad = (HttpTaskManager) Managers.getDefault(url, manager.getClient().getAPI_TOKEN());
         Epic epicLoad = (Epic) managerLoad.getEpicById(epicTest.getId());
 
         assertNotNull(managerLoad.getEpicById(epicTest.getId()), "Эпик, переданный для сохранения отсутствует");
@@ -172,15 +202,8 @@ class FileBackedTasksManagerTest extends TaskManagerTest {
                 "Загруженная подзадача не соответствует сохранённой");
 
         manager.clearTask();
-        manager.save();
-        FileBackedTasksManager managerLoadEmptyFile = loadFromFile(manager.file);
+        manager.saveManagerData();
+        HttpTaskManager managerLoadEmptyFile = (HttpTaskManager) Managers.getDefault(url, manager.getClient().getAPI_TOKEN());
         assertTrue(managerLoadEmptyFile.getHistory().isEmpty(), "Неверная загрузка файла с чистой историей");
-    }
-
-    @Override
-    @Test
-    void shouldGetHistory() {  // Проверка получения истории просмотренных задач
-        super.historyManager = historyManager;
-        super.shouldGetHistory();
     }
 }

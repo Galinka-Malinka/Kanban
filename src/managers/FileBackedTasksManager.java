@@ -1,7 +1,7 @@
 package managers;
 
 import tasks.*;
-import exception.ManagerSaveException;
+import exceptions.ManagerSaveException;
 import menu.Menu;
 
 import java.io.*;
@@ -15,9 +15,9 @@ import java.util.*;
 public class FileBackedTasksManager extends InMemoryTaskManager {
     final File file;
 
-    public FileBackedTasksManager(File file) {
+    public FileBackedTasksManager(String fileName) {
         super();
-        this.file = file;
+        this.file = new File(fileName);
 
     }
 
@@ -28,7 +28,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         String fileName = scanner.nextLine();
 
         File newFile = new File(fileName);
-        FileBackedTasksManager manager = newFile.exists() ? loadFromFile(newFile) : new FileBackedTasksManager(newFile);
+        FileBackedTasksManager manager = newFile.exists() ? loadFromFile(newFile) : new FileBackedTasksManager(fileName);
 
         Menu.workWithMenu(manager);  // Запуск меню
     }
@@ -96,7 +96,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     static FileBackedTasksManager loadFromFile(File file) {  // Восстановление данных из файла
-        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
+        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file.getPath());
         try {
             String content = Files.readString(Path.of(file.getPath()));
 
@@ -137,10 +137,20 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         String name = elementsOfTask[2];
         Status status;
         String description = elementsOfTask[4];
-        String startTimeString = elementsOfTask[6];
-        LocalDateTime startTime = LocalDateTime.parse(startTimeString);
-        String durationString = elementsOfTask[7];
-        Duration duration = Duration.parse(durationString);
+        LocalDateTime startTime;
+        if (elementsOfTask[6].equals("null")) {
+            startTime = null;
+        } else {
+            String startTimeString = elementsOfTask[6];
+            startTime = LocalDateTime.parse(startTimeString);
+        }
+        Duration duration;
+        if (elementsOfTask[7].equals("null")) {
+            duration = null;
+        } else {
+            String durationString = elementsOfTask[7];
+            duration = Duration.parse(durationString);
+        }
 
         if (elementsOfTask[3].equals(Status.NEW.toString())) {
             status = Status.NEW;
@@ -240,12 +250,12 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public Task getEpicById(int id) {  // Проверка наличия эпика по id
+    public Epic getEpicById(int id) {  // Проверка наличия эпика по id
         return super.getEpicById(id);
     }
 
     @Override
-    public Epic getSubtaskEpicId(int id) {  // Получение эпика по id
+    public Epic getSubtaskEpicId(int id) {  // Получение эпика подзадачи по id
         return super.getSubtaskEpicId(id);
     }
 

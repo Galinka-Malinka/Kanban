@@ -31,7 +31,7 @@ public interface TaskManager {
 
     Epic getSubtaskEpicId(int id);  // Получение эпика по id
 
-    Task getEpicById(int id);  //Проверка наличия эпика по id
+    Epic getEpicById(int id);  //Проверка наличия эпика по id
 
     void updateTask(int firstId, Task task);  //Обновление задачи
 

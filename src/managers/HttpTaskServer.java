@@ -1,8 +1,7 @@
 package managers;
 
 import com.google.gson.*;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -13,40 +12,51 @@ import tasks.Task;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalUnit;
+
 import java.util.*;
-import java.util.concurrent.TimeUnit;
+
 
 public class HttpTaskServer {
 
     private static final int PORT = 8080;
+    HttpServer httpServer;
+    FileBackedTasksManager manager;
 
+    public HttpTaskServer(FileBackedTasksManager manager) throws IOException {
+        this.manager = manager;
+
+        httpServer = HttpServer.create();
+        httpServer.bind(new InetSocketAddress(PORT), 0);
+        httpServer.createContext("/tasks/task", new TasksHandler(manager));
+        httpServer.createContext("/tasks/subtask", new SubtasksHandler(manager));
+        httpServer.createContext("/tasks/epic", new EpicHandler(manager));
+        httpServer.createContext("/tasks/", new AllTasksHandler(manager));
+        httpServer.createContext("/tasks/history", new HistoryHandler(manager));
+    }
 
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Введите имя файла");
         String fileName = scanner.nextLine();
-        File file = new File(fileName);
-        FileBackedTasksManager manager = Managers.getFileBacked(file);  // Передали реализацию FileBackedTasksManager
+        FileBackedTasksManager manager = Managers.getFileBacked(fileName); //Передали реализацию FileBackedTasksManager
+        HttpTaskServer httpServer = new HttpTaskServer(manager);
 
-        HttpServer httpServer = HttpServer.create();
-        httpServer.bind(new InetSocketAddress(PORT), 0);
-        httpServer.createContext("/tasks/task", new TasksHandler(manager));
-        //httpServer.createContext("/tasks/task/id", new TasksHandler(manager));
-        httpServer.createContext("/tasks/subtask", new SubtasksHandler(manager));
-        httpServer.createContext("/tasks/epic", new EpicHandler(manager));
-        httpServer.createContext("/tasks/", new AllTasksHandler(manager));
-        httpServer.createContext("/tasks/history", new HistoryHandler(manager));
         httpServer.start(); // запускаем сервер
+    }
 
+    public void start() {
+        this.httpServer.start();
         System.out.println("HTTP-сервер запущен на " + PORT + " порту!");
+    }
+
+    public void stop() {
+        this.httpServer.stop(0);
+        System.out.println("HTTP-сервер остановил свою работу на \" + PORT + \" порту!");
     }
 
     static class HttpHandlerUtils {
@@ -65,9 +75,7 @@ public class HttpTaskServer {
         }
 
         public static Optional<Integer> getId(HttpExchange exchange) { // Получение id из запроса
-
             String[] pathParts = exchange.getRequestURI().getPath().split("/");
-
             if (pathParts.length > 3) {
                 try {
                     return Optional.of(Integer.parseInt(pathParts[3]));
@@ -80,15 +88,13 @@ public class HttpTaskServer {
         }
     }
 
-    static class TasksHandler implements HttpHandler {  // in Task
-
+    static class TasksHandler implements HttpHandler {  // Обработка запроса "/tasks/task"
         private final FileBackedTasksManager manager;
         private final Gson gson;
 
         public TasksHandler(FileBackedTasksManager manager) {
             this.manager = manager;
             this.gson = GsonFactory.getGson();
-
         }
 
         @Override
@@ -102,21 +108,26 @@ public class HttpTaskServer {
                     Optional<Integer> id = HttpHandlerUtils.getId(httpExchange);
                     if (id.isEmpty()) {
                         manager.createTask(task);
-                        HttpHandlerUtils.writeResponse(httpExchange, "Задача успешно создана", 200);
+                        HttpHandlerUtils.writeResponse(httpExchange, "Задача успешно создана",
+                                200);
                     } else {
                         manager.updateTask(id.get(), task);
-                        HttpHandlerUtils.writeResponse(httpExchange, "Задача успешно обновлена", 200);
+                        HttpHandlerUtils.writeResponse(httpExchange, "Задача успешно обновлена",
+                                200);
                     }
-
                     break;
                 }
                 case "GET": {
-
                     Optional<Integer> id = HttpHandlerUtils.getId(httpExchange);
                     if (id.isEmpty()) {
-                        HttpHandlerUtils.writeResponse(httpExchange, "Задачи с таким id не существует.", 404);
+                        HttpHandlerUtils.writeResponse(httpExchange, "Задачи с таким id не существует.",
+                                404);
                     } else {
                         Task task = manager.getTaskById(id.get());
+                        if (task == null) {
+                            HttpHandlerUtils.writeResponse(httpExchange, "Задача с данным id отсутствует",
+                                    404);
+                        }
                         HttpHandlerUtils.writeResponse(httpExchange, gson.toJson(task), 200);
                     }
                     break;
@@ -124,10 +135,12 @@ public class HttpTaskServer {
                 case "DELETE": {
                     Optional<Integer> id = HttpHandlerUtils.getId(httpExchange);
                     if (id.isEmpty()) {
-                        HttpHandlerUtils.writeResponse(httpExchange, "Задачи с таким id не существует.", 404);
+                        HttpHandlerUtils.writeResponse(httpExchange, "Задачи с таким id не существует.",
+                                404);
                     } else {
                         manager.removeById(id.get());
-                        HttpHandlerUtils.writeResponse(httpExchange, "Задача успешно удалена", 200);
+                        HttpHandlerUtils.writeResponse(httpExchange, "Задача успешно удалена",
+                                200);
                     }
                     break;
                 }
@@ -136,10 +149,9 @@ public class HttpTaskServer {
                 }
             }
         }
-
     }
 
-    static class SubtasksHandler implements HttpHandler {  // in Subtask
+    static class SubtasksHandler implements HttpHandler {  //Обработка запроса "/tasks/subtask"
         private final FileBackedTasksManager manager;
         private final Gson gson;
 
@@ -159,17 +171,15 @@ public class HttpTaskServer {
                     Optional<Integer> id = HttpHandlerUtils.getId(httpExchange);
 
                     if (id.isEmpty()) {
-
                         String[] pathParts = httpExchange.getRequestURI().getPath().split("/");
-
                         int epicId = Integer.parseInt(pathParts[4]);
-                        System.out.println(subtask);
                         manager.createSubTask(subtask, epicId);
-
-                        HttpHandlerUtils.writeResponse(httpExchange, "Подзадача успешно создана", 200);
+                        HttpHandlerUtils.writeResponse(httpExchange, "Подзадача успешно создана",
+                                200);
                     } else {
                         manager.updateSubtask(id.get(), subtask);
-                        HttpHandlerUtils.writeResponse(httpExchange, "Подзадача успешно обновлена", 200);
+                        HttpHandlerUtils.writeResponse(httpExchange, "Подзадача успешно обновлена",
+                                200);
                     }
                     break;
                 }
@@ -178,27 +188,35 @@ public class HttpTaskServer {
                     if (pathParts.length > 4 && pathParts[3].equals("epic")) {
                         try {
                             if (manager.getEpicById(Integer.parseInt(pathParts[4])) != null) {
-                                Map<Integer, Subtask> subtaskMap = manager.getSubtasksByEpicId(Integer.parseInt(pathParts[4]));
+                                Map<Integer, Subtask> subtaskMap =
+                                        manager.getSubtasksByEpicId(Integer.parseInt(pathParts[4]));
                                 List<Subtask> subtaskList = new ArrayList<>();
-//                                subtaskList.addAll(subtaskMap.values());
                                 for (Subtask subtask : subtaskMap.values()) {
                                     subtaskList.add(subtask);
                                 }
                                 HttpHandlerUtils.writeResponse(httpExchange, gson.toJson(subtaskList), 200);
                             } else {
-                                HttpHandlerUtils.writeResponse(httpExchange, "Эпика с заданным id не существует", 404);
+
+                                HttpHandlerUtils.writeResponse(httpExchange,
+                                        "Эпика с заданным id не существует", 404);
                             }
                         } catch (NumberFormatException exception) {
-                            HttpHandlerUtils.writeResponse(httpExchange, "Задан неправильный формат для id эпика", 400);
+                            HttpHandlerUtils.writeResponse(httpExchange,
+                                    "Задан неправильный формат для id эпика", 400);
                         }
-
                     } else {
                         Optional<Integer> id = HttpHandlerUtils.getId(httpExchange);
                         if (id.isEmpty()) {
-                            HttpHandlerUtils.writeResponse(httpExchange, "Подзадачи с таким id не существует.", 404);
+                            HttpHandlerUtils.writeResponse(httpExchange,
+                                    "Подзадачи с таким id не существует.", 404);
                         } else {
                             Subtask subtask = (Subtask) manager.getTaskById(id.get());
-                            HttpHandlerUtils.writeResponse(httpExchange, gson.toJson(subtask), 200);
+                            if (subtask == null) {
+                                HttpHandlerUtils.writeResponse(httpExchange, "Подзадача с данным id отсутствует",
+                                        404);
+                            } else {
+                                HttpHandlerUtils.writeResponse(httpExchange, gson.toJson(subtask), 200);
+                            }
                         }
                     }
                     break;
@@ -206,10 +224,13 @@ public class HttpTaskServer {
                 case "DELETE": {
                     Optional<Integer> id = HttpHandlerUtils.getId(httpExchange);
                     if (id.isEmpty()) {
-                        HttpHandlerUtils.writeResponse(httpExchange, "Подзадачи с таким id не существует.", 404);
+                        HttpHandlerUtils.writeResponse(httpExchange,
+                                "Подзадачи с таким id не существует.", 404);
                     } else {
                         manager.removeById(id.get());
-                        HttpHandlerUtils.writeResponse(httpExchange, "Подзадача успешно удалена", 200);
+
+                        HttpHandlerUtils.writeResponse(httpExchange,
+                                "Подзадача успешно удалена", 200);
                     }
                     break;
                 }
@@ -218,10 +239,9 @@ public class HttpTaskServer {
                 }
             }
         }
-
     }
 
-    static class EpicHandler implements HttpHandler {  // in Epic
+    static class EpicHandler implements HttpHandler {  // Обработка запроса "/tasks/epic"
         private final FileBackedTasksManager manager;
         private final Gson gson;
 
@@ -240,19 +260,26 @@ public class HttpTaskServer {
                     Optional<Integer> id = HttpHandlerUtils.getId(httpExchange);
                     if (id.isEmpty()) {
                         manager.createEpic(epic);
-                        HttpHandlerUtils.writeResponse(httpExchange, "Эпик успешно создан", 200);
+                        HttpHandlerUtils.writeResponse(httpExchange, "Эпик успешно создан",
+                                200);
                     } else {
                         manager.updateEpic(id.get(), epic);
-                        HttpHandlerUtils.writeResponse(httpExchange, "Эпик успешно обновлен", 200);
+                        HttpHandlerUtils.writeResponse(httpExchange, "Эпик успешно обновлен",
+                                200);
                     }
                     break;
                 }
                 case "GET": {
                     Optional<Integer> id = HttpHandlerUtils.getId(httpExchange);
                     if (id.isEmpty()) {
-                        HttpHandlerUtils.writeResponse(httpExchange, "Эпика с таким id не существует.", 404);
+                        HttpHandlerUtils.writeResponse(httpExchange, "Эпика с таким id не существует.",
+                                404);
                     } else {
                         Epic epic = (Epic) manager.getTaskById(id.get());
+                        if (epic == null) {
+                            HttpHandlerUtils.writeResponse(httpExchange, "Эпика с данным id отсутствует",
+                                    404);
+                        }
                         HttpHandlerUtils.writeResponse(httpExchange, gson.toJson(epic), 200);
                     }
                     break;
@@ -260,10 +287,12 @@ public class HttpTaskServer {
                 case "DELETE": {
                     Optional<Integer> id = HttpHandlerUtils.getId(httpExchange);
                     if (id.isEmpty()) {
-                        HttpHandlerUtils.writeResponse(httpExchange, "Эпика с таким id не существует.", 404);
+                        HttpHandlerUtils.writeResponse(httpExchange, "Эпика с таким id не существует.",
+                                404);
                     } else {
                         manager.removeById(id.get());
-                        HttpHandlerUtils.writeResponse(httpExchange, "Эпик успешно удален", 200);
+                        HttpHandlerUtils.writeResponse(httpExchange, "Эпик успешно удален",
+                                200);
                     }
                     break;
                 }
@@ -272,10 +301,9 @@ public class HttpTaskServer {
                 }
             }
         }
-
     }
 
-    static class AllTasksHandler implements HttpHandler { // Получение списка всех задач
+    static class AllTasksHandler implements HttpHandler { // Получение списка всех задач по запросу "/tasks/"
         private final FileBackedTasksManager manager;
         private final Gson gson;
 
@@ -288,10 +316,15 @@ public class HttpTaskServer {
         public void handle(HttpExchange httpExchange) throws IOException {
             switch (httpExchange.getRequestMethod().toUpperCase()) {
                 case "GET": {
-//                    List<Task> list = manager.getPrioritizedTasks();
-//                    HttpHandlerUtils.writeResponse(httpExchange, gson.toJson(list), 200);
                     List<Collection<? extends Task>> oldList = manager.getListOfAllTasks();
-                    HttpHandlerUtils.writeResponse(httpExchange, gson.toJson(oldList), 200);
+
+
+                    if (oldList.get(0).isEmpty() && oldList.get(1).isEmpty() && oldList.get(2).isEmpty()) {
+                        HttpHandlerUtils.writeResponse(httpExchange, "Список задач пуст",
+                                404);
+                    } else {
+                        HttpHandlerUtils.writeResponse(httpExchange, gson.toJson(oldList), 200);
+                    }
                     break;
                 }
                 case "DELETE": {
@@ -303,18 +336,16 @@ public class HttpTaskServer {
                     HttpHandlerUtils.writeResponse(httpExchange, "Неподдерживаемый метод", 400);
                 }
             }
-
         }
-
     }
 
-    static class HistoryHandler implements HttpHandler {
+    static class HistoryHandler implements HttpHandler {  // Получение истории по запросу "/tasks/history"
         private final FileBackedTasksManager manager;
         private final Gson gson;
 
         public HistoryHandler(FileBackedTasksManager manager) {
             this.manager = manager;
-            this.gson = GsonFactory.getGson();
+            this.gson = Managers.getGson();
         }
 
         @Override
@@ -323,7 +354,18 @@ public class HttpTaskServer {
             List<Task> list = manager.getHistory();
             HttpHandlerUtils.writeResponse(httpExchange, gson.toJson(list), 200);
         }
+    }
+}
 
+class GsonFactory {
+    public static Gson getGson() {
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeDeserializer())
+                .registerTypeAdapter(Duration.class, new DurationDeserializer())
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateSerializer())
+                .registerTypeAdapter(Duration.class, new DurationSerializer())
+                .setPrettyPrinting().create();
+        return gson;
     }
 }
 
@@ -332,7 +374,7 @@ class LocalDateTimeDeserializer implements JsonDeserializer<LocalDateTime> {
     public LocalDateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException {
         return LocalDateTime.parse(json.getAsString(),
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withLocale(Locale.ENGLISH));
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 }
 
@@ -344,7 +386,7 @@ class DurationDeserializer implements JsonDeserializer<Duration> {
     }
 }
 
-class LocalDateSerializer implements JsonSerializer < LocalDateTime > {
+class LocalDateSerializer implements JsonSerializer<LocalDateTime> {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
@@ -353,55 +395,10 @@ class LocalDateSerializer implements JsonSerializer < LocalDateTime > {
     }
 }
 
-class DurationSerializer implements JsonSerializer < Duration > {
-
+class DurationSerializer implements JsonSerializer<Duration> {
 
     @Override
     public JsonElement serialize(Duration duration, Type srcType, JsonSerializationContext context) {
         return new JsonPrimitive(duration.toMinutes());
     }
 }
-
-class GsonFactory {
-    public static Gson getGson() {
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeDeserializer())
-                .registerTypeAdapter(Duration.class, new DurationDeserializer())
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateSerializer())
-                .registerTypeAdapter(Duration.class, new DurationSerializer())
-//                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-//                .registerTypeAdapter(Duration.class, new DurationAdapter())
-                .setPrettyPrinting().create();
-        return gson;
-// gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeDeserializer());
-        // gsonBuilder.registerTypeAdapter(Duration.class, new DurationDeserializer());
-    }
-
-
-}
-
-//class LocalDateTimeAdapter extends TypeAdapter<LocalDateTime> {
-//    private static final DateTimeFormatter formatterWriter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//    private static final DateTimeFormatter formatterReader = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//
-//    @Override
-//    public void write(final JsonWriter jsonWriter, final LocalDateTime localDateTime) throws IOException {
-//        jsonWriter.value(localDateTime.format(formatterWriter));
-//    }
-//
-//    @Override
-//    public LocalDateTime read(final JsonReader jsonReader) throws IOException {
-//        return LocalDateTime.parse(jsonReader.nextString(), formatterReader);
-//    }
-//}
-//
-//class DurationAdapter extends TypeAdapter<Duration> {
-//    @Override
-//    public void write(final JsonWriter jsonWriter, final Duration duration) throws IOException {
-//        jsonWriter.value(duration.toMinutes());
-//    }
-//    @Override
-//    public Duration read(final JsonReader jsonReader) throws IOException {
-//        return Duration.parse(jsonReader.nextString());
-//    }
-//}

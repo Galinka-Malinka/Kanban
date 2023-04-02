@@ -9,6 +9,9 @@ public class Task {
     private String description;
     private Status status;
 
+
+    private String typeTask = "TASK";
+
     protected int id;
 
     protected LocalDateTime startTime;
@@ -21,8 +24,15 @@ public class Task {
         this.description = description;
         this.status = status;
         this.startTime = startTime;
+        if (this.startTime != null) {
+            this.startTime = this.startTime.minusNanos(startTime.getNano());
+        }
         this.duration = duration;
         getEndTime();
+    }
+
+    public void setTypeTask(String typeTask) {
+        this.typeTask = typeTask;
     }
 
     public LocalDateTime getEndTime() {
@@ -118,5 +128,4 @@ public class Task {
     public int hashCode() {
         return Objects.hash(name, description, status, id);
     }
-
 }

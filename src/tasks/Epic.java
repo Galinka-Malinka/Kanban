@@ -11,6 +11,7 @@ public class Epic extends Task {
 
     public Epic(String name, String description, Status status, LocalDateTime startTime, Duration duration) {
         super(name, description, status, startTime, duration);
+        super.setTypeTask("EPIC");
     }
 
     public Map<Integer, Subtask> getSubtasks() {
@@ -30,16 +31,17 @@ public class Epic extends Task {
         LocalDateTime latestEndTime = getEndTime();
 
         for (Subtask subtask : subtaskMap.values()) {
-
-            if (subtaskMap.size() == 1 || getStartTime() == null) {
-                earliestStartTime = subtask.getStartTime();
-                latestEndTime = subtask.getEndTime();
-            }
-            if (subtask.getStartTime().isBefore(earliestStartTime)) {
-                earliestStartTime = subtask.getStartTime();
-            }
-            if (subtask.getEndTime().isAfter(latestEndTime)) {
-                latestEndTime = subtask.getEndTime();
+            if (subtask.getStartTime() != null) {
+                if (subtaskMap.size() == 1 || getStartTime() == null) {
+                    earliestStartTime = subtask.getStartTime();
+                    latestEndTime = subtask.getEndTime();
+                }
+                if (subtask.getStartTime().isBefore(earliestStartTime)) {
+                    earliestStartTime = subtask.getStartTime();
+                }
+                if (subtask.getEndTime().isAfter(latestEndTime)) {
+                    latestEndTime = subtask.getEndTime();
+                }
             }
         }
         if (earliestStartTime != null) {
