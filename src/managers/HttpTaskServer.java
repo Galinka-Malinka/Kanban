@@ -8,14 +8,12 @@ import com.sun.net.httpserver.HttpServer;
 import tasks.Epic;
 import tasks.Subtask;
 import tasks.Task;
+import utils.GsonFactory;
 
 import java.io.*;
-import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
 
 import java.util.*;
 
@@ -354,51 +352,5 @@ public class HttpTaskServer {
             List<Task> list = manager.getHistory();
             HttpHandlerUtils.writeResponse(httpExchange, gson.toJson(list), 200);
         }
-    }
-}
-
-class GsonFactory {
-    public static Gson getGson() {
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeDeserializer())
-                .registerTypeAdapter(Duration.class, new DurationDeserializer())
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateSerializer())
-                .registerTypeAdapter(Duration.class, new DurationSerializer())
-                .setPrettyPrinting().create();
-        return gson;
-    }
-}
-
-class LocalDateTimeDeserializer implements JsonDeserializer<LocalDateTime> {
-    @Override
-    public LocalDateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-            throws JsonParseException {
-        return LocalDateTime.parse(json.getAsString(),
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-    }
-}
-
-class DurationDeserializer implements JsonDeserializer<Duration> {
-    @Override
-    public Duration deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-            throws JsonParseException {
-        return Duration.ofMinutes(json.getAsLong());
-    }
-}
-
-class LocalDateSerializer implements JsonSerializer<LocalDateTime> {
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-    @Override
-    public JsonElement serialize(LocalDateTime localDate, Type srcType, JsonSerializationContext context) {
-        return new JsonPrimitive(formatter.format(localDate));
-    }
-}
-
-class DurationSerializer implements JsonSerializer<Duration> {
-
-    @Override
-    public JsonElement serialize(Duration duration, Type srcType, JsonSerializationContext context) {
-        return new JsonPrimitive(duration.toMinutes());
     }
 }

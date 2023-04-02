@@ -13,12 +13,16 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
-    final File file;
+    private final File file;
 
     public FileBackedTasksManager(String fileName) {
         super();
         this.file = new File(fileName);
 
+    }
+
+    public File getFile() {
+        return file;
     }
 
     public static void main(String[] args) {
@@ -36,7 +40,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     public void save() {  // Метод сохранения в файл
         List<Collection<? extends Task>> listOfOllTask = super.getListOfAllTasks();  //Получение списока всех задач
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file.getName(), StandardCharsets.UTF_8))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(getFile().getName(), StandardCharsets.UTF_8))) {
             writer.write("id,type,name,status,description,epic,startTime,duration");
             writer.newLine();
             if (!listOfOllTask.isEmpty()) {
